@@ -21,24 +21,30 @@ A full-stack content moderation platform where users can submit posts and admins
 ## Current Status
 - ✅ Git repository initialized & pushed to GitHub (https://github.com/emunoz02/modqueue.git)
 - ✅ Folder structure reorganized (backend/frontend separation)
-- ✅ Feature branch created: `feature/database-schema`
+- ✅ Feature branch merged to main (PR #1 - database models)
 - ✅ Virtual environment setup and dependencies installed
-- ✅ **DATABASE MODELS COMPLETE**: User, Post, Moderation models fully implemented
-- 🔄 **NEXT**: Commit models → Set up PostgreSQL → Configure Flask app → Run migrations
-- ⏳ Pending: PostgreSQL setup, Flask app factory, API routes, user authentication, admin dashboard
+- ✅ **DATABASE MODELS COMPLETE**: User, Post, Moderation models fully implemented and merged
+- ✅ **PostgreSQL 18 INSTALLED & CONFIGURED**: Server running, database & user created with permissions
+- ✅ **DATABASE SETUP COMPLETE**: `modqueue_dev` database and `modqueue_user` created
+- ✅ **FLASK APP FACTORY COMPLETE**: config.py, __init__.py, run.py, .env configured
+- ✅ **MIGRATIONS COMPLETE**: Initial migration created and applied - all tables exist in PostgreSQL!
+- 🔄 **NEXT PHASE**: Build API routes (authentication, posts, moderation endpoints)
+- ⏳ Pending: API routes, user authentication (JWT/bcrypt), admin dashboard, React frontend
 
 ## Project Structure
 ```
 modqueue/
 ├── backend/
 │   ├── app/
-│   │   ├── __init__.py (TODO: Flask app factory)
-│   │   ├── models.py ✅ (User, Post, Moderation models complete)
-│   │   ├── config.py (TODO: Database config)
+│   │   ├── __init__.py ✅ (Flask app factory with db and migrate)
+│   │   ├── models.py ✅ (User, Post, Moderation models)
+│   │   ├── config.py ✅ (Database config, environment variables)
 │   │   └── routes/ (TODO: API endpoints)
-│   ├── .venv/ (virtual environment - activated)
-│   ├── run.py (Flask entry point - needs update)
-│   └── requirements.txt (TODO: generate with pip freeze)
+│   ├── migrations/ ✅ (Flask-Migrate folder, initial migration applied)
+│   ├── .env ✅ (Environment variables - not in git)
+│   ├── run.py ✅ (Flask entry point with load_dotenv)
+│   └── requirements.txt (TODO: update with pip freeze)
+├── .venv/ (virtual environment at project root)
 ├── .git/
 ├── .gitignore
 └── CLAUDE.md
@@ -90,8 +96,12 @@ modqueue/
 
 ## Git Workflow
 - Main branch: `main` (stable)
-- Current branch: `feature/database-schema`
+- Current branch: `main` (feature/database-schema merged via PR #1)
 - Remote: https://github.com/emunoz02/modqueue.git
+- Recent commits:
+  - `1c70dde` - Add .claude to gitignore
+  - `feecb3b` - Merge pull request #1 (database models)
+  - `64b8fb6` - Add database models and reorganize project structure
 
 ## Token Usage Strategy
 - Start fresh conversations for distinct features/phases
@@ -132,25 +142,92 @@ All three models implemented in `backend/app/models.py`:
 - flask-migrate
 - psycopg2-binary
 
+### Flask App Configuration - COMPLETED ✅
+
+**Session 3 Progress (Feb 15, 2026):**
+- ✅ Created `backend/app/config.py` with Config class for database settings
+- ✅ Updated `backend/app/__init__.py` to use app factory pattern
+- ✅ Updated `backend/app/models.py` to import `db` from `__init__.py` (fixed circular dependency)
+- ✅ Created `backend/.env` file for environment variables (DATABASE_URL, SECRET_KEY)
+- ✅ Updated `backend/run.py` to load environment variables with `python-dotenv`
+- ✅ Installed missing packages: `python-dotenv`, `flask-migrate`, `psycopg2-binary`
+- ✅ Initialized Flask-Migrate: `python -m flask db init`
+- ✅ Created initial migration: `python -m flask db migrate`
+- ✅ Applied migration: `python -m flask db upgrade`
+- ✅ Verified all 3 tables created in PostgreSQL (`users`, `posts`, `moderations`)
+- ✅ Fixed PostgreSQL permissions for `modqueue_user` on `public` schema
+- ✅ Updated `.claude/settings.local.json` with broader bash permissions
+
+**Files Created/Modified This Session:**
+- `backend/app/config.py` (NEW)
+- `backend/app/__init__.py` (UPDATED - app factory)
+- `backend/app/models.py` (UPDATED - import db)
+- `backend/.env` (NEW - gitignored)
+- `backend/run.py` (UPDATED - load_dotenv)
+- `backend/migrations/` (NEW - entire folder)
+- `.claude/settings.local.json` (UPDATED)
+
+**Key Learnings:**
+- **App Factory Pattern**: Create Flask app inside a function (`create_app()`) for flexibility
+- **Two-Step Initialization**: Create extensions globally (`db = SQLAlchemy()`), initialize with app later (`db.init_app(app)`)
+- **Circular Imports**: Models import `db` from `__init__.py`, `__init__.py` imports models after app creation
+- **PostgreSQL Permissions**: Granting privileges on a DATABASE doesn't grant privileges on SCHEMAS - need both
+- **Environment Variables**: Use `python-dotenv` to load `.env` file, keep secrets out of code
+- **Flask CLI**: Use `python -m flask` instead of just `flask` to avoid PATH issues
+- **Migrations**: `flask db init` (once), `flask db migrate` (create), `flask db upgrade` (apply)
+
+### PostgreSQL Installation - COMPLETED ✅
+
+**Installation & Setup:**
+- ✅ PostgreSQL 18 installed via official Windows installer
+- ✅ Added `C:\Program Files\PostgreSQL\18\bin` to Windows PATH
+- ✅ PostgreSQL service (`postgresql-x64-18`) started and running
+- ✅ Successfully authenticated with `postgres` user
+- ✅ Created database: `modqueue_dev`
+- ✅ Created user: `modqueue_user` with password: `pgemunoz`
+- ✅ Granted all privileges on `modqueue_dev` to `modqueue_user`
+- ✅ Verified connection: `PGPASSWORD='pgemunoz' psql -U modqueue_user -h 127.0.0.1 -d modqueue_dev`
+
+**Database Credentials (for Flask config):**
+- Database: `modqueue_dev`
+- User: `modqueue_user`
+- Password: `pgemunoz`
+- Host: `localhost` (or `127.0.0.1`)
+- Port: `5432`
+- Connection String: `postgresql://modqueue_user:pgemunoz@localhost:5432/modqueue_dev`
+
+**Key Learnings:**
+- PostgreSQL runs as a Windows service (`postgresql-x64-18`)
+- Need admin privileges to start/stop Windows services (`net start`/`net stop`)
+- PATH must include PostgreSQL bin folder for `psql` command to work
+- `pg_hba.conf` controls authentication methods (trust/scram-sha-256/md5)
+- Connection methods: `local` (Unix sockets), `host` (TCP/IP IPv4/IPv6)
+- Set password in environment: `PGPASSWORD='password' psql -U user`
+
 ## Next Steps
 
-### 1. Set Up PostgreSQL (Next Session)
-- Install PostgreSQL locally
-- Create database: `modqueue_dev`
-- Create database user with password
-- Test connection
+### 1. Set Up PostgreSQL - COMPLETED ✅
+- ✅ Install PostgreSQL locally (PostgreSQL 18 installed)
+- ✅ Start PostgreSQL service
+- ✅ Connect to PostgreSQL via psql
+- ✅ Create database: `modqueue_dev`
+- ✅ Create database user: `modqueue_user` with password
+- ✅ Grant permissions to `modqueue_user` on `modqueue_dev`
+- ✅ Test connection with new user
 
-### 2. Configure Flask App (Next Session)
-- Create `backend/app/__init__.py` (Flask app factory pattern)
-- Create `backend/app/config.py` (database connection string)
-- Update `backend/run.py` to use app factory
-- Set environment variables (.env file for DATABASE_URL)
+### 2. Configure Flask App - COMPLETED ✅
+- ✅ Create `backend/app/__init__.py` (Flask app factory pattern)
+- ✅ Create `backend/app/config.py` (database connection string)
+- ✅ Update `backend/run.py` to use app factory
+- ✅ Create `.env` file for environment variables
+- ✅ Set `DATABASE_URL` in format: `postgresql://modqueue_user:password@localhost:5432/modqueue_dev`
+- ✅ `.env` already in `.gitignore`
 
-### 3. Run Database Migrations
-- Initialize Flask-Migrate: `flask db init`
-- Create migration: `flask db migrate -m "Initial migration"`
-- Apply migration: `flask db upgrade`
-- Verify tables created in PostgreSQL
+### 3. Run Database Migrations - COMPLETED ✅
+- ✅ Initialize Flask-Migrate: `python -m flask db init`
+- ✅ Create migration: `python -m flask db migrate -m "Initial migration"`
+- ✅ Apply migration: `python -m flask db upgrade`
+- ✅ Verify tables created in PostgreSQL (users, posts, moderations)
 
 ### 4. Build API Routes (Future)
 - Authentication routes (signup, login)
