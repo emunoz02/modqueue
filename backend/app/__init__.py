@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
+
 # Initialize extensions (but don't attach to app yet)
 db = SQLAlchemy()
 migrate = Migrate()
@@ -21,5 +22,10 @@ def create_app():
 
     # Import models (so Flask-Migrate can detect them)
     from app import models
+    from app.routes import auth_bp
+    
+    app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    
+    
 
     return app
