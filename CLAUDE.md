@@ -28,22 +28,25 @@ A full-stack content moderation platform where users can submit posts and admins
 - ✅ **DATABASE SETUP COMPLETE**: `modqueue_dev` database and `modqueue_user` created
 - ✅ **FLASK APP FACTORY COMPLETE**: config.py, __init__.py, run.py, .env configured
 - ✅ **MIGRATIONS COMPLETE**: Initial migration created and applied - all tables exist in PostgreSQL!
-- 🔄 **NEXT PHASE**: Build API routes (authentication, posts, moderation endpoints)
-- ⏳ Pending: API routes, user authentication (JWT/bcrypt), admin dashboard, React frontend
+- ✅ **AUTHENTICATION ROUTES COMPLETE**: Signup/login with bcrypt password hashing and JWT tokens
+- 🔄 **CURRENT BRANCH**: `feature/route-registration` (ready to push and create PR #2)
+- ⏳ Pending: Posts routes, moderation routes (admin), React frontend, Docker setup
 
 ## Project Structure
 ```
 modqueue/
 ├── backend/
 │   ├── app/
-│   │   ├── __init__.py ✅ (Flask app factory with db and migrate)
+│   │   ├── __init__.py ✅ (Flask app factory, blueprint registration)
 │   │   ├── models.py ✅ (User, Post, Moderation models)
 │   │   ├── config.py ✅ (Database config, environment variables)
-│   │   └── routes/ (TODO: API endpoints)
+│   │   └── routes/
+│   │       ├── __init__.py ✅ (Export blueprints)
+│   │       └── auth.py ✅ (Signup/login with JWT)
 │   ├── migrations/ ✅ (Flask-Migrate folder, initial migration applied)
 │   ├── .env ✅ (Environment variables - not in git)
 │   ├── run.py ✅ (Flask entry point with load_dotenv)
-│   └── requirements.txt (TODO: update with pip freeze)
+│   └── requirements.txt ✅ (PyJWT, Flask, SQLAlchemy, etc.)
 ├── .venv/ (virtual environment at project root)
 ├── .git/
 ├── .gitignore
@@ -204,6 +207,47 @@ All three models implemented in `backend/app/models.py`:
 - Connection methods: `local` (Unix sockets), `host` (TCP/IP IPv4/IPv6)
 - Set password in environment: `PGPASSWORD='password' psql -U user`
 
+### Authentication Routes - COMPLETED ✅
+
+**Session 4 Progress (Feb 16, 2026):**
+- ✅ Created feature branch: `feature/route-registration`
+- ✅ Created `backend/app/routes/` folder structure
+- ✅ Built `backend/app/routes/auth.py` with signup and login endpoints
+- ✅ Implemented password hashing with `werkzeug.security` (bcrypt)
+- ✅ Implemented JWT token generation with PyJWT
+- ✅ Created `backend/app/routes/__init__.py` to export blueprints
+- ✅ Registered auth blueprint in `backend/app/__init__.py` with `/api/auth` prefix
+- ✅ Installed PyJWT package
+- ✅ Updated `requirements.txt` with `pip freeze`
+- ✅ Tested both endpoints successfully with curl
+- ✅ Made 2 commits on feature branch
+
+**Files Created/Modified This Session:**
+- `backend/app/routes/__init__.py` (NEW)
+- `backend/app/routes/auth.py` (NEW - 102 lines)
+- `backend/app/__init__.py` (UPDATED - blueprint registration)
+- `backend/requirements.txt` (UPDATED - added PyJWT)
+
+**API Endpoints Created:**
+- `POST /api/auth/signup` - Create new user with hashed password, returns user info (201)
+- `POST /api/auth/login` - Authenticate user, returns JWT token (200)
+
+**Key Learnings:**
+- **Flask Blueprints**: Organize routes by feature, use `url_prefix` to avoid repeating paths
+- **Password Hashing**: Never store plain text passwords, use `generate_password_hash()` and `check_password_hash()`
+- **JWT Tokens**: Stateless authentication, token contains user_id and expiration, signed with SECRET_KEY
+- **HTTP Status Codes**: 200 (OK), 201 (Created), 400 (Bad Request), 401 (Unauthorized), 409 (Conflict), 500 (Server Error)
+- **Relative Imports**: Use `from .module import thing` within packages for cleaner imports
+- **requirements.txt**: Always keep it updated and commit it to git (other devs need it!)
+- **API Testing**: Use curl to test endpoints before building frontend
+- **Blueprint Registration Flow**: auth.py creates blueprint → routes/__init__.py exports it → app/__init__.py registers it
+
+**Git Workflow This Session:**
+- Branch created: `feature/route-registration`
+- Commit 1: "Authentication routes with signup, login, password hashing, and JWT"
+- Commit 2: Updated requirements.txt
+- Ready for: Push to GitHub and create PR #2
+
 ## Next Steps
 
 ### 1. Set Up PostgreSQL - COMPLETED ✅
@@ -229,11 +273,30 @@ All three models implemented in `backend/app/models.py`:
 - ✅ Apply migration: `python -m flask db upgrade`
 - ✅ Verify tables created in PostgreSQL (users, posts, moderations)
 
-### 4. Build API Routes (Future)
-- Authentication routes (signup, login)
-- Post routes (create, read, update, delete)
-- Admin routes (approve/reject posts, manage users)
+### 4. Build Authentication Routes - COMPLETED ✅
+- ✅ Create routes folder structure with blueprints
+- ✅ Signup endpoint with password hashing
+- ✅ Login endpoint with JWT tokens
+- ✅ Test endpoints with curl
 
-### 5. Build React Frontend (Future)
-### 6. Dockerize Application (Future)
-### 7. Deploy (Future)
+### 5. Push Feature Branch & Create PR #2 (Next!)
+- Push `feature/route-registration` to GitHub
+- Create Pull Request to merge into `main`
+- Review changes, merge PR
+- Delete feature branch after merge
+
+### 6. Build Posts API Routes (Future)
+- Create posts blueprint (`routes/posts.py`)
+- CRUD endpoints: create, read, update, delete posts
+- Authorization: users can only edit/delete their own posts
+- Filter by status: pending/approved/rejected
+
+### 7. Build Moderation Routes (Admin Only) (Future)
+- Admin-only blueprint with authorization middleware
+- Approve/reject posts
+- Ban/unban users
+- View moderation history
+
+### 8. Build React Frontend (Future)
+### 9. Dockerize Application (Future)
+### 10. Deploy (Future)
